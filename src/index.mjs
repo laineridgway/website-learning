@@ -1,17 +1,12 @@
 import express from "express";
-import usersRouter from './routes/users.mjs'
+import routes from "./routes/index.mjs";
+import cookieParser from "cookie-parser";
 
 const app = express();
 
 app.use(express.json());
-app.use(usersRouter);
-
-const loggingMiddleware = (request, response, next) => {
-  console.log(`${request.method} - ${request.url}`);
-  next(); // to go to next middleware/route/endpoint
-};
-
-app.use(loggingMiddleware); // logs requests to endpoints (global)
+app.use(cookieParser("helloworld"));
+app.use(routes);
 
 const PORT = process.env.PORT || 3000;
 
@@ -20,12 +15,7 @@ app.listen(PORT, () => {
 });
 
 // GET
-app.get("/", loggingMiddleware, (request, response) => {
-  // logs requests to endpoints (local)
+app.get("/", (request, response) => {
+  response.cookie("hello", "world", { maxAge: 60000 * 60, signed: true });
   response.status(201).send({ msg: "Hello" }); // request: headers, response: what we send
-});
-
-
-app.get("/api/products", (request, response) => {
-  response.send([{ id: 123, name: "chicken breast", price: 12.99 }]);
 });
